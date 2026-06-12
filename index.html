@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FM Digital Official — Release Your Music Worldwide</title>
+
+  <!-- GSAP + ScrollTrigger + TextPlugin -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
+  <!-- Lenis smooth scroll (free ScrollSmoother equivalent) -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #000;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: none; border: none; outline: none; font-family: inherit; }
+
+    /* ── Lenis ── */
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+
+    /* ── Variables ── */
+    :root {
+      --black:#000000; --bg:#080808; --bg2:#0a0f0c; --card-bg:#0f1a14;
+      --teal:#0f4c4c; --green:#1a7a4a; --neon:#4ade80;
+      --white:#ffffff; --muted:#888888; --dim:#555555; --border:#1a1a1a;
+    }
+
+    /* ── Shared ── */
+    .section-inner { max-width: 1120px; margin: 0 auto; }
+    .eyebrow { display:block; text-align:center; font-size:0.72rem; color:var(--neon); letter-spacing:3px; text-transform:uppercase; margin-bottom:0.9rem; }
+    .section-title { text-align:center; font-size:clamp(1.9rem,4vw,3rem); font-weight:800; color:var(--white); letter-spacing:-1px; line-height:1.1; margin-bottom:1rem; }
+    .section-title em { font-style:normal; color:var(--neon); }
+    .section-lead { text-align:center; font-size:1.05rem; color:var(--muted); max-width:620px; margin:0 auto 3rem; line-height:1.6; }
+    .reveal { opacity:0; transform:translateY(40px); }
+
+    /* ── Buttons ── */
+    .btn-primary { background:var(--green); color:var(--white); padding:0.85rem 2.2rem; border-radius:30px; font-size:1rem; font-weight:600; transition:background .2s,transform .2s,color .2s; display:inline-block; }
+    .btn-primary:hover { background:var(--neon); color:var(--black); transform:translateY(-2px); }
+    .btn-secondary { background:transparent; color:var(--neon); padding:0.85rem 2.2rem; border-radius:30px; border:1px solid var(--green); font-size:1rem; font-weight:600; transition:background .2s,transform .2s; display:inline-block; }
+    .btn-secondary:hover { background:rgba(26,122,74,0.15); transform:translateY(-2px); }
+
+    /* ── Cursor glow ── */
+    #cursor-glow { position:fixed; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle,rgba(26,122,74,0.18) 0%,transparent 70%); pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:opacity .3s; }
+
+    /* ── Sale bar ── */
+    #sale-bar { position:fixed; top:0; left:0; right:0; z-index:101; background:linear-gradient(90deg,#0f4c4c,#1a7a4a); color:#fff; text-align:center; font-size:0.78rem; letter-spacing:0.5px; padding:0.4rem 1rem; font-weight:500; }
+    #sale-bar strong { color:#eaffea; }
+
+    /* ── Navbar ── */
+    #navbar { position:fixed; top:30px; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:1.1rem 4rem; transition:background .4s ease,border-color .4s ease; }
+    #navbar.scrolled { background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid #1a7a4a33; }
+    .nav-links { display:flex; gap:2.2rem; align-items:center; }
+    .nav-links a { font-size:0.88rem; color:var(--muted); transition:color .2s; }
+    .nav-links a:hover { color:var(--white); }
+    .nav-links .nav-cta { color:var(--neon); border:1px solid var(--green); padding:0.45rem 1.2rem; border-radius:20px; font-size:0.85rem; transition:background .2s,color .2s; }
+    .nav-links .nav-cta:hover { background:var(--green); color:var(--white); }
+
+    /* ── Hero ── */
+    #hero { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse at 50% 40%,#06140d 0%,#000 70%); padding:9rem 4rem 4rem; overflow:hidden; }
+    .hero-inner { max-width:920px; text-align:center; z-index:1; }
+    .hero-badge { display:inline-block; font-size:0.75rem; color:var(--neon); letter-spacing:3px; text-transform:uppercase; border:1px solid rgba(74,222,128,0.25); padding:0.35rem 1rem; border-radius:20px; margin-bottom:1.5rem; opacity:0; transform:translateY(10px); }
+    .hero-h1 { font-size:clamp(2.3rem,5.2vw,4.2rem); font-weight:900; color:var(--white); line-height:1.07; letter-spacing:-2px; margin-bottom:1.3rem; }
+    .hero-h1 em { font-style:normal; color:var(--neon); }
+    .hero-sub { font-size:clamp(1rem,2vw,1.25rem); color:var(--muted); max-width:620px; margin:0 auto 2rem; line-height:1.6; opacity:0; transform:translateY(20px); }
+    .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; opacity:0; transform:translateY(20px); }
+    .hero-glow-line { position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--neon),transparent); opacity:0; }
+
+    /* ── Slogan ── */
+    #slogan { background:var(--black); padding:6.5rem 4rem; text-align:center; position:relative; overflow:hidden; }
+    #slogan::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(26,122,74,0.10),transparent 70%); pointer-events:none; }
+    .slogan-inner { max-width:920px; margin:0 auto; position:relative; z-index:1; }
+    .slogan-text { font-size:clamp(1.8rem,4.5vw,3.4rem); font-weight:800; color:var(--white); line-height:1.28; letter-spacing:-1px; }
+    .slogan-text em { font-style:normal; color:var(--neon); }
+
+    /* ── Stats ── */
+    #stats { background:var(--bg2); padding:4rem 4rem; border-top:1px solid #111; border-bottom:1px solid #111; }
+    .stats-grid { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+    .stat-item { text-align:center; }
+    .stat-num { font-size:clamp(2.2rem,4vw,3.2rem); font-weight:900; color:var(--neon); line-height:1; }
+    .stat-label { font-size:0.85rem; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-top:0.6rem; }
+
+    /* ── Why (features) ── */
+    #why { background:var(--black); padding:6rem 4rem; }
+    .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-top:1rem; }
+    .why-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:2rem 1.6rem; transition:border-color .25s,box-shadow .25s,transform .25s; }
+    .why-card:hover { border-color:var(--green); box-shadow:0 0 24px rgba(26,122,74,0.15); transform:translateY(-4px); }
+    .why-icon { width:46px; height:46px; border-radius:12px; background:rgba(26,122,74,0.12); border:1px solid rgba(26,122,74,0.4); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.1rem; }
+    .why-title { font-size:1.15rem; font-weight:700; color:var(--white); margin-bottom:0.5rem; }
+    .why-desc { font-size:0.92rem; color:var(--muted); line-height:1.55; }
+
+    /* ── Platforms ── */
+    #platforms { background:var(--bg); padding:5rem 0; overflow:hidden; }
+    .platforms-label { text-align:center; font-size:0.8rem; color:var(--green); letter-spacing:3px; text-transform:uppercase; margin-bottom:0.4rem; }
+    .platforms-sub { text-align:center; font-size:0.85rem; color:var(--dim); margin-bottom:2.5rem; }
+    .marquee-wrapper { display:flex; flex-direction:column; gap:1rem; }
+    .marquee-row { overflow:hidden; width:100%; }
+    .marquee-inner { display:flex; gap:1rem; width:max-content; will-change:transform; }
+    .dsp-chip { display:flex; align-items:center; gap:0.5rem; background:#0e0e0e; border:1px solid var(--border); padding:0.6rem 1.2rem; border-radius:6px; white-space:nowrap; transition:border-color .2s,box-shadow .2s; flex-shrink:0; }
+    .dsp-chip:hover { border-color:var(--green); box-shadow:0 0 12px rgba(26,122,74,0.3); }
+    .dsp-chip img { width:22px; height:22px; object-fit:contain; filter:brightness(0.85); }
+    .dsp-chip span { font-size:0.78rem; color:var(--muted); }
+
+    /* ── Pricing ── */
+    #pricing { background:var(--bg2); padding:6rem 4rem; }
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:1rem; align-items:stretch; }
+    .price-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:2.2rem 1.8rem; display:flex; flex-direction:column; transition:border-color .25s,transform .25s,box-shadow .25s; }
+    .price-card:hover { transform:translateY(-6px); box-shadow:0 12px 40px rgba(0,0,0,0.5); }
+    .price-card.featured { border-color:var(--green); background:linear-gradient(180deg,#0f1f15,#0a140e); box-shadow:0 0 40px rgba(26,122,74,0.18); }
+    .price-badge { display:inline-block; align-self:flex-start; font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:var(--neon); border:1px solid var(--green); border-radius:12px; padding:2px 10px; margin-bottom:1rem; }
+    .price-name { font-size:1.3rem; font-weight:800; color:var(--white); margin-bottom:0.5rem; }
+    .price-amt { font-size:2.2rem; font-weight:900; color:var(--neon); line-height:1; margin-bottom:0.2rem; }
+    .price-amt span { font-size:0.85rem; color:var(--muted); font-weight:500; }
+    .price-note { font-size:0.75rem; color:var(--dim); margin-bottom:1.4rem; }
+    .price-features { list-style:none; padding:0; margin:0 0 1.8rem; flex-grow:1; }
+    .price-features li { font-size:0.88rem; color:var(--muted); padding:0.4rem 0; display:flex; align-items:flex-start; gap:0.55rem; line-height:1.4; }
+    .price-features li::before { content:'✓'; color:var(--neon); font-weight:700; flex-shrink:0; }
+    .price-btn { text-align:center; padding:0.8rem; border-radius:25px; font-weight:600; font-size:0.95rem; transition:all .2s; }
+    .price-btn.solid { background:var(--green); color:#fff; }
+    .price-btn.solid:hover { background:var(--neon); color:#000; }
+    .price-btn.ghost { background:transparent; color:var(--neon); border:1px solid var(--green); }
+    .price-btn.ghost:hover { background:rgba(26,122,74,0.15); }
+
+    /* ── Testimonials ── */
+    #testimonials { background:var(--black); padding:6rem 4rem; }
+    .testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-top:1rem; }
+    .testi-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:1.6rem; display:flex; align-items:center; gap:1rem; transition:border-color .25s,transform .25s; }
+    .testi-card:hover { border-color:var(--green); transform:translateY(-3px); }
+    .testi-avatar { width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,var(--green),var(--teal)); display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; flex-shrink:0; font-size:1.1rem; }
+    .testi-name { font-size:0.98rem; font-weight:600; color:var(--white); }
+    .testi-role { font-size:0.78rem; color:var(--dim); margin-top:2px; }
+
+    /* ── Partners ── */
+    #partners { background:var(--bg2); padding:5rem 4rem; }
+    .partners-row { display:flex; justify-content:center; gap:1.4rem; flex-wrap:wrap; margin-top:1rem; }
+    .partner-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:1.8rem 2.6rem; text-align:center; transition:border-color .25s,transform .25s; min-width:260px; }
+    .partner-card:hover { border-color:var(--green); transform:translateY(-3px); }
+    .partner-name { font-size:1.8rem; font-weight:900; color:var(--white); letter-spacing:1px; }
+    .partner-role { font-size:0.82rem; color:var(--muted); margin-top:0.4rem; }
+
+    /* ── FAQ ── */
+    #faq { background:var(--black); padding:6rem 4rem; }
+    .faq-list { max-width:820px; margin:1rem auto 0; }
+    .faq-item { border-bottom:1px solid var(--border); }
+    .faq-q { width:100%; text-align:left; background:none; padding:1.4rem 0; display:flex; justify-content:space-between; align-items:center; gap:1rem; font-size:1.05rem; color:var(--white); font-weight:600; cursor:none; }
+    .faq-q:hover { color:var(--neon); }
+    .faq-icon { color:var(--green); font-size:1.4rem; flex-shrink:0; transition:transform .3s; }
+    .faq-item.open .faq-icon { transform:rotate(45deg); color:var(--neon); }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+    .faq-a-inner { padding:0 0 1.4rem; font-size:0.95rem; color:var(--muted); line-height:1.7; }
+    .faq-a-inner ul { margin:0.6rem 0 0; padding-left:1.2rem; }
+    .faq-a-inner li { margin-bottom:0.35rem; }
+
+    /* ── CTA ── */
+    #cta { background:linear-gradient(180deg,#050f08 0%,#000 100%); padding:7rem 4rem; text-align:center; position:relative; overflow:hidden; border-top:1px solid rgba(26,122,74,0.15); }
+    .cta-sweep-line { position:absolute; top:0; left:0; height:1px; background:linear-gradient(90deg,transparent,var(--neon),transparent); width:0; }
+    .cta-inner { position:relative; z-index:1; }
+    .cta-h2 { font-size:clamp(2rem,5vw,3.6rem); font-weight:900; color:var(--white); letter-spacing:-1.5px; margin-bottom:1rem; opacity:0; transform:scale(0.92); }
+    .cta-h2 em { font-style:normal; color:var(--neon); }
+    .cta-sub { font-size:1.1rem; color:var(--muted); margin-bottom:2.5rem; opacity:0; transform:translateY(20px); }
+    .btn-large { font-size:1.1rem; padding:1rem 2.8rem; opacity:0; transform:translateY(20px); }
+
+    /* ── Footer ── */
+    #footer { background:#000; border-top:1px solid var(--border); padding:4rem 4rem 2rem; }
+    .footer-top { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr 1fr; gap:2rem; }
+    .footer-brand img { margin-bottom:1rem; }
+    .footer-brand p { font-size:0.86rem; color:var(--dim); line-height:1.6; max-width:240px; }
+    .footer-col h4 { font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:var(--white); margin-bottom:1rem; }
+    .footer-col a { display:block; font-size:0.84rem; color:var(--dim); margin-bottom:0.6rem; transition:color .2s; }
+    .footer-col a:hover { color:var(--neon); }
+    .footer-bottom { max-width:1120px; margin:3rem auto 0; padding-top:1.5rem; border-top:1px solid var(--border); text-align:center; }
+    .footer-copy { font-size:0.82rem; color:#555; line-height:1.6; }
+    .footer-copy strong { color:var(--muted); font-weight:600; }
+
+    /* ── Anchor offset ── */
+    section[id] { scroll-margin-top:90px; }
+
+    /* ── Responsive ── */
+    @media (max-width:1024px) {
+      #navbar { padding:1rem 2rem; }
+      #hero,#slogan,#stats,#why,#pricing,#testimonials,#partners,#faq,#cta { padding-left:2rem; padding-right:2rem; }
+      .why-grid,.testi-grid { grid-template-columns:1fr 1fr; }
+      .pricing-grid { grid-template-columns:1fr; max-width:520px; margin-left:auto; margin-right:auto; }
+      .stats-grid { grid-template-columns:1fr 1fr; gap:2.5rem; }
+      .footer-top { grid-template-columns:1fr 1fr 1fr; }
+      #footer { padding:3rem 2rem 2rem; }
+    }
+    @media (max-width:768px) {
+      .nav-links a:not(.nav-cta) { display:none; }
+      #navbar { padding:1rem 1.5rem; }
+      #hero { padding:8rem 1.5rem 3rem; }
+      .hero-btns { flex-direction:column; align-items:center; }
+      .hero-btns .btn-primary,.hero-btns .btn-secondary { width:100%; max-width:280px; text-align:center; }
+      #slogan,#stats,#why,#pricing,#testimonials,#partners,#faq,#cta { padding-left:1.5rem; padding-right:1.5rem; }
+      .why-grid,.testi-grid { grid-template-columns:1fr; }
+      .stats-grid { grid-template-columns:1fr 1fr; }
+      .footer-top { grid-template-columns:1fr 1fr; }
+    }
+    @media (hover:none) { #cursor-glow{display:none;} body,button,.faq-q{cursor:auto;} }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity:1 !important; transform:none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor-glow"></div>
+
+  <!-- Sale bar -->
+  <div id="sale-bar">🔥 <strong>Annual Sale</strong> — Live July to September · Lock in your release price now</div>
+
+  <!-- Navbar -->
+  <nav id="navbar">
+    <a class="nav-logo" href="#hero" data-scroll>
+      <img src="Brand logo/FM DIGITAL OFFICIAL LOGO.svg" alt="FM Digital Official" height="36" />
+    </a>
+    <div class="nav-links">
+      <a href="#why" data-scroll>Services</a>
+      <a href="#pricing" data-scroll>Pricing</a>
+      <a href="#faq" data-scroll>Support</a>
+      <a href="#cta" data-scroll class="nav-cta">Start Releasing Today →</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">🎵 FM Digital Official Distribution</div>
+      <h1 class="hero-h1">Release Your Music Worldwide With <em>FM Digital Official Distribution</em></h1>
+      <p class="hero-sub">Distribute to 190+ platforms while keeping control of your music and earnings.</p>
+      <div class="hero-btns">
+        <a href="#pricing" data-scroll class="btn-primary">Start Releasing Today</a>
+        <a href="#platforms" data-scroll class="btn-secondary">See All Platforms</a>
+      </div>
+    </div>
+    <div class="hero-glow-line"></div>
+  </section>
+
+  <!-- Slogan -->
+  <section id="slogan">
+    <div class="slogan-inner">
+      <p class="slogan-text reveal">"Where Every <em>Stream Counts</em><br>and every <em>artist matters</em>."</p>
+    </div>
+  </section>
+
+  <!-- Stats / Social Proof -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="12" data-suffix="k+">0</div>
+        <div class="stat-label">Songs Distributed</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="1000" data-suffix="+">0</div>
+        <div class="stat-label">Artists Served</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="500" data-suffix="+">0</div>
+        <div class="stat-label">Labels Served</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="1200" data-suffix="M">0</div>
+        <div class="stat-label">Streams Till Now</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why FM Digital Official -->
+  <section id="why">
+    <div class="section-inner">
+      <span class="eyebrow reveal">Why FM Digital Official</span>
+      <h2 class="section-title reveal">Everything You Need to <em>Release &amp; Grow</em></h2>
+      <p class="section-lead reveal">One platform built to get your music out, protect it, and pay you — wherever your fans are.</p>
+      <div class="why-grid">
+        <div class="why-card reveal"><div class="why-icon">🌍</div><div class="why-title">Global Distribution</div><div class="why-desc">Deliver your releases to 190+ stores and streaming services across every major market.</div></div>
+        <div class="why-card reveal"><div class="why-icon">⚡</div><div class="why-title">Fast Approval</div><div class="why-desc">Quick reviews and standard delivery times so your music goes live without the wait.</div></div>
+        <div class="why-card reveal"><div class="why-icon">🎧</div><div class="why-title">Playlist Pitching</div><div class="why-desc">Get your tracks in front of editorial and curator playlists to reach new listeners.</div></div>
+        <div class="why-card reveal"><div class="why-icon">🤝</div><div class="why-title">Artist Support</div><div class="why-desc">A dedicated 24/7 support panel ready to help you at every step of your journey.</div></div>
+        <div class="why-card reveal"><div class="why-icon">🏷️</div><div class="why-title">Label Services</div><div class="why-desc">Manage multiple artists and catalogs with tools built for labels of every size.</div></div>
+        <div class="why-card reveal"><div class="why-icon">💰</div><div class="why-title">Revenue Management</div><div class="why-desc">Track royalties, publishing, and payouts with full transparency over your earnings.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platforms -->
+  <section id="platforms">
+    <p class="platforms-label">DSPs &amp; Stores</p>
+    <p class="platforms-sub">More than 190+ platforms worldwide</p>
+    <div class="marquee-wrapper">
+      <div class="marquee-row" id="marquee-row-1">
+        <div class="marquee-inner">
+          <div class="dsp-chip"><img src="DSPs/spotify.svg" alt="Spotify" /><span>Spotify</span></div>
+          <div class="dsp-chip"><img src="DSPs/apple music.svg" alt="Apple Music" /><span>Apple Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/yt music.svg" alt="YouTube Music" /><span>YT Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/amazon music.svg" alt="Amazon Music" /><span>Amazon Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/Tidal.svg" alt="Tidal" /><span>Tidal</span></div>
+          <div class="dsp-chip"><img src="DSPs/Deezer.svg" alt="Deezer" /><span>Deezer</span></div>
+          <div class="dsp-chip"><img src="DSPs/jio savan.svg" alt="JioSaavn" /><span>JioSaavn</span></div>
+          <div class="dsp-chip"><img src="DSPs/pandora.svg" alt="Pandora" /><span>Pandora</span></div>
+          <div class="dsp-chip"><img src="DSPs/soundcloud.svg" alt="SoundCloud" /><span>SoundCloud</span></div>
+          <div class="dsp-chip"><img src="DSPs/vevo.svg" alt="Vevo" /><span>Vevo</span></div>
+          <div class="dsp-chip"><img src="DSPs/shazam.svg" alt="Shazam" /><span>Shazam</span></div>
+          <div class="dsp-chip"><img src="DSPs/tiktok.svg" alt="TikTok" /><span>TikTok</span></div>
+          <div class="dsp-chip"><img src="DSPs/meta.svg" alt="Meta" /><span>Meta</span></div>
+          <div class="dsp-chip"><img src="DSPs/snap.svg" alt="Snapchat" /><span>Snapchat</span></div>
+          <div class="dsp-chip"><img src="DSPs/spotify.svg" alt="Spotify" /><span>Spotify</span></div>
+          <div class="dsp-chip"><img src="DSPs/apple music.svg" alt="Apple Music" /><span>Apple Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/yt music.svg" alt="YouTube Music" /><span>YT Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/amazon music.svg" alt="Amazon Music" /><span>Amazon Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/Tidal.svg" alt="Tidal" /><span>Tidal</span></div>
+          <div class="dsp-chip"><img src="DSPs/Deezer.svg" alt="Deezer" /><span>Deezer</span></div>
+          <div class="dsp-chip"><img src="DSPs/jio savan.svg" alt="JioSaavn" /><span>JioSaavn</span></div>
+          <div class="dsp-chip"><img src="DSPs/pandora.svg" alt="Pandora" /><span>Pandora</span></div>
+          <div class="dsp-chip"><img src="DSPs/soundcloud.svg" alt="SoundCloud" /><span>SoundCloud</span></div>
+          <div class="dsp-chip"><img src="DSPs/vevo.svg" alt="Vevo" /><span>Vevo</span></div>
+          <div class="dsp-chip"><img src="DSPs/shazam.svg" alt="Shazam" /><span>Shazam</span></div>
+          <div class="dsp-chip"><img src="DSPs/tiktok.svg" alt="TikTok" /><span>TikTok</span></div>
+          <div class="dsp-chip"><img src="DSPs/meta.svg" alt="Meta" /><span>Meta</span></div>
+          <div class="dsp-chip"><img src="DSPs/snap.svg" alt="Snapchat" /><span>Snapchat</span></div>
+        </div>
+      </div>
+      <div class="marquee-row" id="marquee-row-2">
+        <div class="marquee-inner">
+          <div class="dsp-chip"><img src="DSPs/boomplay.svg" alt="Boomplay" /><span>Boomplay</span></div>
+          <div class="dsp-chip"><img src="DSPs/anghami.svg" alt="Anghami" /><span>Anghami</span></div>
+          <div class="dsp-chip"><img src="DSPs/beatport.svg" alt="Beatport" /><span>Beatport</span></div>
+          <div class="dsp-chip"><img src="DSPs/kkbox.svg" alt="KKBOX" /><span>KKBOX</span></div>
+          <div class="dsp-chip"><img src="DSPs/audiomack.svg" alt="Audiomack" /><span>Audiomack</span></div>
+          <div class="dsp-chip"><img src="DSPs/gaana.svg" alt="Gaana" /><span>Gaana</span></div>
+          <div class="dsp-chip"><img src="DSPs/triller.svg" alt="Triller" /><span>Triller</span></div>
+          <div class="dsp-chip"><img src="DSPs/resso.svg" alt="Resso" /><span>Resso</span></div>
+          <div class="dsp-chip"><img src="DSPs/qobuz.svg" alt="Qobuz" /><span>Qobuz</span></div>
+          <div class="dsp-chip"><img src="DSPs/line music.svg" alt="Line Music" /><span>Line Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/tencent music.svg" alt="Tencent" /><span>Tencent</span></div>
+          <div class="dsp-chip"><img src="DSPs/7 digital.svg" alt="7digital" /><span>7digital</span></div>
+          <div class="dsp-chip"><img src="DSPs/hungama.svg" alt="Hungama" /><span>Hungama</span></div>
+          <div class="dsp-chip"><img src="DSPs/youtube.svg" alt="YouTube" /><span>YouTube</span></div>
+          <div class="dsp-chip"><img src="DSPs/boomplay.svg" alt="Boomplay" /><span>Boomplay</span></div>
+          <div class="dsp-chip"><img src="DSPs/anghami.svg" alt="Anghami" /><span>Anghami</span></div>
+          <div class="dsp-chip"><img src="DSPs/beatport.svg" alt="Beatport" /><span>Beatport</span></div>
+          <div class="dsp-chip"><img src="DSPs/kkbox.svg" alt="KKBOX" /><span>KKBOX</span></div>
+          <div class="dsp-chip"><img src="DSPs/audiomack.svg" alt="Audiomack" /><span>Audiomack</span></div>
+          <div class="dsp-chip"><img src="DSPs/gaana.svg" alt="Gaana" /><span>Gaana</span></div>
+          <div class="dsp-chip"><img src="DSPs/triller.svg" alt="Triller" /><span>Triller</span></div>
+          <div class="dsp-chip"><img src="DSPs/resso.svg" alt="Resso" /><span>Resso</span></div>
+          <div class="dsp-chip"><img src="DSPs/qobuz.svg" alt="Qobuz" /><span>Qobuz</span></div>
+          <div class="dsp-chip"><img src="DSPs/line music.svg" alt="Line Music" /><span>Line Music</span></div>
+          <div class="dsp-chip"><img src="DSPs/tencent music.svg" alt="Tencent" /><span>Tencent</span></div>
+          <div class="dsp-chip"><img src="DSPs/7 digital.svg" alt="7digital" /><span>7digital</span></div>
+          <div class="dsp-chip"><img src="DSPs/hungama.svg" alt="Hungama" /><span>Hungama</span></div>
+          <div class="dsp-chip"><img src="DSPs/youtube.svg" alt="YouTube" /><span>YouTube</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="section-inner">
+      <span class="eyebrow reveal">Pricing</span>
+      <h2 class="section-title reveal">Plans That <em>Scale With You</em></h2>
+      <p class="section-lead reveal">No upfront fees. Choose the release plan that fits where you are right now.</p>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <span class="price-badge">Starter Release Plan</span>
+          <div class="price-name">Starter</div>
+          <div class="price-amt">₹489<span>+</span></div>
+          <div class="price-note">Annual Sale / Stage</div>
+          <ul class="price-features">
+            <li>1 song distribution</li>
+            <li>190+ DSPs</li>
+            <li>Basic metadata tools</li>
+            <li>Free UPC &amp; ISRC code</li>
+            <li>Standard delivery time</li>
+            <li>Revenue: 70% / 30%</li>
+            <li>Publishing rights and revenue</li>
+            <li>Get 24/7 Support panel</li>
+          </ul>
+          <a href="#" class="price-btn ghost">Start Releasing Today</a>
+        </div>
+
+        <div class="price-card featured reveal">
+          <span class="price-badge">Most Popular</span>
+          <div class="price-name">Artist Pro</div>
+          <div class="price-amt">₹2,999</div>
+          <div class="price-note">per year</div>
+          <ul class="price-features">
+            <li>Unlimited releases</li>
+            <li>190+ DSPs</li>
+            <li>Metadata tools</li>
+            <li>Monthly Report</li>
+            <li>Free UPC &amp; ISRC code</li>
+            <li>Standard delivery time</li>
+            <li>Revenue: 70% / 30%</li>
+            <li>Publishing rights and revenue</li>
+            <li>Get 24/7 Support panel</li>
+            <li>Earn from refer</li>
+          </ul>
+          <a href="#" class="price-btn solid">Get Started</a>
+        </div>
+
+        <div class="price-card reveal">
+          <span class="price-badge">Label</span>
+          <div class="price-name">Label</div>
+          <div class="price-amt">Custom</div>
+          <div class="price-note">Get Custom Plan</div>
+          <ul class="price-features">
+            <li>Everything in Artist Pro</li>
+            <li>Manage multiple artists &amp; labels</li>
+            <li>Unlock new revenue streams</li>
+            <li>Dedicated account support</li>
+          </ul>
+          <a href="#" class="price-btn ghost">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="section-inner">
+      <span class="eyebrow reveal">Testimonials</span>
+      <h2 class="section-title reveal">Trusted by <em>Artists &amp; Labels</em></h2>
+      <div class="testi-grid">
+        <div class="testi-card reveal"><div class="testi-avatar">H</div><div><div class="testi-name">Hosanna Ministries Official</div><div class="testi-role">Artist</div></div></div>
+        <div class="testi-card reveal"><div class="testi-avatar">R</div><div><div class="testi-name">Ramesh Hosanna Ministries</div><div class="testi-role">Artist</div></div></div>
+        <div class="testi-card reveal"><div class="testi-avatar">H</div><div><div class="testi-name">Hosanna Ministries Kurnool</div><div class="testi-role">Artist</div></div></div>
+        <div class="testi-card reveal"><div class="testi-avatar">R</div><div><div class="testi-name">RD Parmar</div><div class="testi-role">Artist</div></div></div>
+        <div class="testi-card reveal"><div class="testi-avatar">A</div><div><div class="testi-name">Ajay Salwan</div><div class="testi-role">Artist</div></div></div>
+        <div class="testi-card reveal"><div class="testi-avatar">H</div><div><div class="testi-name">Hariom Raghav</div><div class="testi-role">I Village Music</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Business Partners -->
+  <section id="partners">
+    <div class="section-inner">
+      <span class="eyebrow reveal">Business Partners</span>
+      <h2 class="section-title reveal">Backed by <em>Industry Leaders</em></h2>
+      <div class="partners-row">
+        <div class="partner-card reveal"><div class="partner-name">UMG</div><div class="partner-role">Our Music Publishing Partner</div></div>
+        <div class="partner-card reveal"><div class="partner-name">FUGA</div><div class="partner-role">Our Music Distribution Partner</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="section-inner">
+      <span class="eyebrow reveal">Support</span>
+      <h2 class="section-title reveal">Frequently Asked <em>Questions</em></h2>
+      <div class="faq-list">
+        <div class="faq-item reveal">
+          <button class="faq-q">Which streaming services do you distribute to?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">We distribute to all the major streaming services: Spotify, Apple Music, TikTok, YouTube, Deezer, Tidal, and over 200 other streaming platforms and stores globally.</div></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">How do you distribute my music for free?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">FM Digital Official offers free distribution through a process called "royalty capture." When royalties are received from Digital Service Providers, they are placed into the DeFi platform AAVE for a set period. During this time, the royalties earn interest, which we retain, while you keep 100% of the principal royalty amount. After this period, your earnings, beyond a minimal locked amount, are fully available for withdrawal. Unlike others who claim to be free, we truly are.</div></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">How do I transfer my catalog from another distributor?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Transferring your catalog to FM Digital is simple. You'll need a few key pieces of information:
+            <ul>
+              <li>The UPC and ISRC (to help DSPs identify your existing release)</li>
+              <li>Release title and track title(s)</li>
+              <li>Artist(s) name(s)</li>
+              <li>The original release date</li>
+              <li>The exact same audio and cover art files from the previous release.</li>
+            </ul>
+          </div></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">Are there any fees, and do I keep all my royalties?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">There are no upfront fees, but we offer two plans for music distribution:
+            <ul>
+              <li><strong>Freemium Plan:</strong> You keep 70% of your royalties, with FM Digital retaining 30%.</li>
+              <li><strong>Premium Plan:</strong> You keep 100% of your royalties, ensuring you receive every cent of your earnings.</li>
+            </ul>
+            FM Digital Official provides flexible options to suit your needs, whether you're just starting out or looking to maximize your revenue.</div></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q">Can I update or change my release after it's been distributed?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><div class="faq-a-inner">Yes, you can update your release after distribution. However, certain changes, like updating metadata or replacing audio files, may require additional processing time. Contact our support team for specific changes.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="cta-sweep-line" id="cta-sweep"></div>
+    <div class="cta-inner">
+      <h2 class="cta-h2" id="cta-heading">Release Your Music <em>Worldwide</em></h2>
+      <p class="cta-sub">Distribute to 190+ platforms while keeping control of your music and earnings.</p>
+      <a href="#" class="btn-primary btn-large" id="cta-btn">Start Releasing Today →</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="Brand logo/FM DIGITAL OFFICIAL LOGO.svg" alt="FM Digital Official" height="34" />
+        <p>Release your music worldwide while keeping control of your music and earnings.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Artist &amp; Label Services</h4>
+        <a href="#">Sell Your Music</a>
+        <a href="#">Playlisting</a>
+        <a href="#">Royalty Advances</a>
+        <a href="#">Marketing</a>
+        <a href="#pricing" data-scroll>Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h4>About</h4>
+        <a href="#">Our Story</a>
+        <a href="#">Our Mission</a>
+        <a href="#">Why Choose Us?</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Terms of service</a>
+        <a href="#">Distro Agreement</a>
+        <a href="#">Analytics Disclosure</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Anti-Fraud Policy</a>
+        <a href="#">Exclusive artist</a>
+      </div>
+      <div class="footer-col">
+        <h4>Join us</h4>
+        <a href="#">Career</a>
+        <a href="#">Investor Opportunities</a>
+        <a href="#">Partnerships</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy"><strong>© 2024 - 2026 FM Digital Official Distribution.</strong> All rights reserved.<br>A subsidiary of Koko Advertising &amp; Marketing.</p>
+    </div>
+  </footer>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ── Lenis smooth scroll (gsap.com-style) ── */
+    let lenis = null;
+    if (!reduceMotion) {
+      lenis = new Lenis({ duration: 1.15, smoothWheel: true, smoothTouch: false });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    /* ── Smooth anchor links ── */
+    document.querySelectorAll('a[data-scroll]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (id && id.startsWith('#') && document.querySelector(id)) {
+          e.preventDefault();
+          if (lenis) lenis.scrollTo(id, { offset: -70 });
+          else document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    /* ── Cursor glow ── */
+    const glow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => gsap.to(glow, { x: e.clientX, y: e.clientY, duration: 0.5, ease: 'power2.out' }));
+    document.addEventListener('mouseleave', () => gsap.to(glow, { opacity: 0, duration: 0.3 }));
+    document.addEventListener('mouseenter', () => gsap.to(glow, { opacity: 1, duration: 0.3 }));
+
+    /* ── Navbar scrolled state ── */
+    ScrollTrigger.create({
+      start: 'top -60',
+      onEnter: () => document.getElementById('navbar').classList.add('scrolled'),
+      onLeaveBack: () => document.getElementById('navbar').classList.remove('scrolled'),
+    });
+
+    /* ── Hero entrance ── */
+    gsap.from('#navbar', { y: -60, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
+    const heroTl = gsap.timeline({ delay: 0.45 });
+    heroTl
+      .to('.hero-badge', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+      .from('.hero-h1', { opacity: 0, y: 30, duration: 0.9, ease: 'power3.out' }, '-=0.2')
+      .to('.hero-sub', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
+      .to('.hero-btns', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
+      .to('.hero-glow-line', { opacity: 1, duration: 1.2, ease: 'power2.out' }, '-=0.5');
+
+    /* ── Hero scroll-away parallax (gsap.com feel) ── */
+    if (!reduceMotion) {
+      gsap.to('.hero-inner', {
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+        y: 120, opacity: 0.2, scale: 0.96, ease: 'none'
+      });
+    }
+
+    /* ── Marquee ── */
+    gsap.to('#marquee-row-1 .marquee-inner', { x: '-50%', duration: 38, ease: 'none', repeat: -1 });
+    gsap.fromTo('#marquee-row-2 .marquee-inner', { x: '-50%' }, { x: '0%', duration: 30, ease: 'none', repeat: -1 });
+    gsap.from('#platforms', {
+      scrollTrigger: { trigger: '#platforms', start: 'top 85%', toggleActions: 'play none none none' },
+      y: 50, opacity: 0, duration: 0.9, ease: 'power3.out'
+    });
+
+    /* ── Generic reveal-on-scroll ── */
+    gsap.utils.toArray('.reveal').forEach(el => {
+      gsap.to(el, {
+        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out'
+      });
+    });
+
+    /* ── Stagger groups ── */
+    function staggerGroup(sel, trigger) {
+      gsap.to(sel, {
+        scrollTrigger: { trigger: trigger, start: 'top 82%', toggleActions: 'play none none none' },
+        opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out'
+      });
+    }
+    staggerGroup('.why-grid .why-card', '.why-grid');
+    staggerGroup('.pricing-grid .price-card', '.pricing-grid');
+    staggerGroup('.testi-grid .testi-card', '.testi-grid');
+    staggerGroup('.faq-list .faq-item', '.faq-list');
+
+    /* ── Scrub parallax on section headings (gsap.com feel) ── */
+    if (!reduceMotion) {
+      gsap.utils.toArray('.section-title').forEach(title => {
+        gsap.fromTo(title, { y: 40 }, {
+          y: -40, ease: 'none',
+          scrollTrigger: { trigger: title, start: 'top bottom', end: 'bottom top', scrub: true }
+        });
+      });
+      gsap.fromTo('.slogan-text', { y: 60 }, {
+        y: -60, ease: 'none',
+        scrollTrigger: { trigger: '#slogan', start: 'top bottom', end: 'bottom top', scrub: true }
+      });
+    }
+
+    /* ── Stats count-up ── */
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseFloat(el.getAttribute('data-count'));
+      const suffix = el.getAttribute('data-suffix') || '';
+      const obj = { val: 0 };
+      ScrollTrigger.create({
+        trigger: el, start: 'top 90%', once: true,
+        onEnter: () => gsap.to(obj, {
+          val: target, duration: 1.6, ease: 'power2.out',
+          onUpdate: () => {
+            const v = obj.val;
+            el.textContent = (v >= 1000 ? Math.round(v).toLocaleString() : Math.round(v)) + suffix;
+          }
+        })
+      });
+    });
+
+    /* ── FAQ accordion ── */
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const q = item.querySelector('.faq-q');
+      const a = item.querySelector('.faq-a');
+      q.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(o => { o.classList.remove('open'); o.querySelector('.faq-a').style.maxHeight = null; });
+        if (!isOpen) { item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+        ScrollTrigger.refresh();
+      });
+    });
+
+    /* ── CTA ── */
+    gsap.to('#cta-sweep', { scrollTrigger: { trigger: '#cta', start: 'top 80%', toggleActions: 'play none none none' }, width: '100%', duration: 1.0, ease: 'power3.inOut' });
+    gsap.to('#cta-heading', { scrollTrigger: { trigger: '#cta', start: 'top 75%', toggleActions: 'play none none none' }, scale: 1, opacity: 1, duration: 0.9, ease: 'power3.out', delay: 0.1 });
+    gsap.to('.cta-sub', { scrollTrigger: { trigger: '#cta', start: 'top 72%', toggleActions: 'play none none none' }, opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.3 });
+    gsap.to('#cta-btn', { scrollTrigger: { trigger: '#cta', start: 'top 70%', toggleActions: 'play none none none' }, opacity: 1, y: 0, duration: 0.7, ease: 'back.out(1.5)', delay: 0.45 });
+    gsap.to('#cta-btn', { boxShadow: '0 0 30px rgba(74,222,128,0.5)', duration: 1.4, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 2 });
+  </script>
+</body>
+</html>

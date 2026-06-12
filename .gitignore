@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# local tooling / scratch (not for public repo)
+.superpowers/
+.playwright-mcp/
+docs/superpowers/
+
+# internal documents (keep private)
+*.pdf
+
+# os/editor
+Thumbs.db
+.DS_Store
